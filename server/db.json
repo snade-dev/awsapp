@@ -1,0 +1,113 @@
+{
+  "teachers": [
+    {
+      "id": "teacher-1",
+      "name": "Mme Dupont"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "quiz-1",
+      "title": "Introduction aux reseaux",
+      "subject": "Informatique",
+      "mode": "exam",
+      "duration": 15,
+      "description": "QCM de controle continu sur les bases TCP/IP.",
+      "allowExplanations": true,
+      "questions": [
+        {
+          "text": "Quel protocole est utilise pour la navigation web securisee ?",
+          "options": [
+            {
+              "text": "FTP",
+              "explanation": "FTP sert au transfert de fichiers, pas a la navigation web securisee."
+            },
+            {
+              "text": "HTTP",
+              "explanation": "HTTP fonctionne pour le web mais sans chiffrement."
+            },
+            {
+              "text": "HTTPS",
+              "explanation": "HTTPS chiffre les echanges entre le navigateur et le serveur via TLS."
+            },
+            {
+              "text": "SMTP",
+              "explanation": "SMTP est utilise pour l'envoi d'emails."
+            }
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "text": "Quelle couche du modele OSI transporte les paquets IP ?",
+          "options": [
+            {
+              "text": "Transport",
+              "explanation": "La couche transport gere plutot TCP et UDP."
+            },
+            {
+              "text": "Reseau",
+              "explanation": "IP appartient a la couche reseau, chargee de l'acheminement des paquets."
+            },
+            {
+              "text": "Session",
+              "explanation": "La couche session ne transporte pas les paquets IP."
+            },
+            {
+              "text": "Application",
+              "explanation": "La couche application concerne les services utilisateurs."
+            }
+          ],
+          "correctAnswer": 1
+        }
+      ]
+    },
+    {
+      "id": "quiz-2",
+      "title": "Culture generale scientifique",
+      "subject": "Sciences",
+      "mode": "practice",
+      "duration": 10,
+      "description": "Quiz rapide de revision avant le cours.",
+      "allowExplanations": true,
+      "questions": [
+        {
+          "text": "Quelle planete est surnommee la planete rouge ?",
+          "options": [
+            {
+              "text": "Mars",
+              "explanation": "Mars parait rouge a cause de l'oxyde de fer present a sa surface."
+            },
+            {
+              "text": "Jupiter",
+              "explanation": "Jupiter est surtout connue pour sa grande tache rouge, pas comme planete rouge."
+            },
+            {
+              "text": "Venus",
+              "explanation": "Venus est une planete tres chaude, mais elle n'est pas surnommee la planete rouge."
+            },
+            {
+              "text": "Mercure",
+              "explanation": "Mercure est la plus proche du Soleil, sans ce surnom."
+            }
+          ],
+          "correctAnswer": 0
+        }
+      ]
+    }
+  ],
+  "students": [
+    {
+      "id": "student-1",
+      "name": "Sarah Martin",
+      "email": "sarah.martin@campus.fr",
+      "group": "L1 Informatique"
+    },
+    {
+      "id": "student-2",
+      "name": "Yassine Belaid",
+      "email": "yassine.belaid@campus.fr",
+      "group": "L1 Informatique"
+    }
+  ],
+  "results": []
+}
