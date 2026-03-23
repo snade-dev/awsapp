@@ -4,6 +4,7 @@ import { formatTime, inputClassName } from "../lib/ui";
 
 export function SessionPage() {
   const {
+    auth,
     data,
     sessionConfig,
     setSessionConfig,
@@ -38,24 +39,20 @@ export function SessionPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Etudiant">
-            <select value={sessionConfig.studentId} onChange={(event) => setSessionConfig((current) => ({ ...current, studentId: event.target.value }))} className={inputClassName}>
-              {data.students.length ? data.students.map((student) => <option key={student.id} value={student.id}>{student.name} - {student.group || "sans groupe"}</option>) : <option value="">Ajoutez un etudiant d'abord</option>}
-            </select>
+            <input value={auth.name || "Etudiant"} disabled className={`${inputClassName} bg-slate-50 text-slate-500`} />
           </Field>
-          <Field label="Quiz">
+          <Field label="Quiz choisi">
             <select value={sessionConfig.quizId} onChange={(event) => setSessionConfig((current) => ({ ...current, quizId: event.target.value }))} className={inputClassName}>
-              {data.quizzes.length ? data.quizzes.map((quiz) => <option key={quiz.id} value={quiz.id}>{quiz.title} ({quiz.mode === "exam" ? "examen" : "quiz"})</option>) : <option value="">Ajoutez un quiz d'abord</option>}
+              {data.quizzes.length ? data.quizzes.map((quiz) => <option key={quiz.id} value={quiz.id}>{quiz.title}</option>) : <option value="">Ajoutez un quiz d'abord</option>}
             </select>
           </Field>
-          <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700">
+          <Field label="Mode choisi">
             <input
-              type="checkbox"
-              checked={sessionConfig.showExplanations}
-              onChange={(event) => setSessionConfig((current) => ({ ...current, showExplanations: event.target.checked }))}
-              className="h-4 w-4 accent-[#b85d3d]"
+              value={sessionConfig.sessionMode === "exam" ? "Examen sans explications" : "Entrainement avec explications"}
+              disabled
+              className={`${inputClassName} bg-slate-50 text-slate-500 md:col-span-2`}
             />
-            <span className="font-semibold">Faire le quiz avec explications si le professeur les a autorisees</span>
-          </label>
+          </Field>
           <div className="md:col-span-2">
             <button type="button" onClick={startSession} className="inline-flex min-h-12 items-center justify-center rounded-full bg-lagoon px-6 py-3 font-semibold text-white transition hover:-translate-y-0.5">Commencer</button>
           </div>

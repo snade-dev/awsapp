@@ -3,10 +3,6 @@ import { createContext, startTransition, useContext, useEffect, useRef, useState
 const AUTH_STORAGE_KEY = "quizcampus-auth-v1";
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
-if (!API_BASE_URL) {
-  throw new Error("VITE_API_URL est manquante.");
-}
-
 
 const initialQuestion = {
   text: "",
@@ -22,7 +18,8 @@ const initialQuestion = {
 const AppDataContext = createContext(null);
 
 async function api(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}/api${path}`, {
+  const baseUrl = API_BASE_URL || "";
+  const response = await fetch(`${baseUrl}/api${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers ?? {})
@@ -47,8 +44,8 @@ export function AppDataProvider({ children }) {
   const [quizForm, setQuizForm] = useState({ title: "", subject: "", mode: "practice", duration: 20, description: "", allowExplanations: true });
   const [draftQuestion, setDraftQuestion] = useState(initialQuestion);
   const [draftQuestions, setDraftQuestions] = useState([]);
-  const [studentForm, setStudentForm] = useState({ name: "", email: "", group: "" });
-  const [sessionConfig, setSessionConfig] = useState({ studentId: "", quizId: "", showExplanations: false });
+  const [studentForm, setStudentForm] = useState({ name: "", email: "", group: "", password: "etud1234" });
+  const [sessionConfig, setSessionConfig] = useState({ studentId: "", quizId: "", sessionMode: "practice", showExplanations: true });
   const [activeSession, setActiveSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [auth, setAuth] = useState(() => {
@@ -96,6 +93,12 @@ export function AppDataProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (auth.isAuthenticated && auth.role === "student" && auth.id) {
+      setSessionConfig((current) => ({ ...current, studentId: auth.id }));
+    }
+  }, [auth]);
+
+  useEffect(() => {
     if (!activeSession || activeSession.mode !== "exam" || activeSession.completed) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -131,6 +134,35 @@ export function AppDataProvider({ children }) {
       const options = [...current.options];
       options[index] = { ...options[index], [field]: value };
       return { ...current, options };
+    });
+  }
+
+  function addDraftOption() {
+    setDraftQuestion((current) => ({
+      ...current,
+      options: [...current.options, { text: "", explanation: "" }]
+    }));
+  }
+
+  function removeDraftOption(index) {
+    setDraftQuestion((current) => {
+      if (current.options.length <= 2) {
+        return current;
+      }
+      const nextOptions = current.options.filter((_, optionIndex) => optionIndex !== index);
+      const nextCorrectAnswer = current.correctAnswer >= nextOptions.length
+        ? nextOptions.length - 1
+        : current.correctAnswer === index
+          ? 0
+          : current.correctAnswer > index
+            ? current.correctAnswer - 1
+            : current.correctAnswer;
+
+      return {
+        ...current,
+        options: nextOptions,
+        correctAnswer: nextCorrectAnswer
+      };
     });
   }
 
@@ -189,7 +221,7 @@ export function AppDataProvider({ children }) {
 
     startTransition(() => {
       setData((current) => ({ ...current, quizzes: [createdQuiz, ...current.quizzes] }));
-      setSessionConfig((current) => ({ ...current, quizId: createdQuiz.id }));
+      setSessionConfig((current) => ({ ...current, quizId: createdQuiz.id, sessionMode: "practice", showExplanations: true }));
       setQuizForm({ title: "", subject: "", mode: "practice", duration: 20, description: "", allowExplanations: true });
       setDraftQuestions([]);
       setDraftQuestion(initialQuestion);
@@ -201,7 +233,8 @@ export function AppDataProvider({ children }) {
     const payload = {
       name: studentForm.name.trim(),
       email: studentForm.email.trim(),
-      group: studentForm.group.trim()
+      group: studentForm.group.trim(),
+      password: studentForm.password.trim()
     };
 
     if (!payload.name || !payload.email) {
@@ -217,7 +250,7 @@ export function AppDataProvider({ children }) {
     startTransition(() => {
       setData((current) => ({ ...current, students: [createdStudent, ...current.students] }));
       setSessionConfig((current) => ({ ...current, studentId: createdStudent.id }));
-      setStudentForm({ name: "", email: "", group: "" });
+      setStudentForm({ name: "", email: "", group: "", password: "etud1234" });
     });
   }
 
@@ -237,6 +270,16 @@ export function AppDataProvider({ children }) {
     }
   }
 
+  function prepareStudentSession(quizId, mode) {
+    const quiz = data.quizzes.find((item) => item.id === quizId);
+    setSessionConfig((current) => ({
+      ...current,
+      quizId,
+      sessionMode: mode,
+      showExplanations: mode === "practice" && Boolean(quiz?.allowExplanations)
+    }));
+  }
+
   function startSession() {
     const student = data.students.find((item) => item.id === sessionConfig.studentId);
     const quiz = data.quizzes.find((item) => item.id === sessionConfig.quizId);
@@ -248,11 +291,11 @@ export function AppDataProvider({ children }) {
     setActiveSession({
       studentId: student.id,
       quizId: quiz.id,
-      mode: quiz.mode,
+      mode: sessionConfig.sessionMode,
       answers: Array(quiz.questions.length).fill(null),
-      remainingSeconds: quiz.duration * 60,
+      remainingSeconds: sessionConfig.sessionMode === "exam" ? quiz.duration * 60 : 0,
       currentQuestionIndex: 0,
-      showExplanations: quiz.mode === "practice" ? sessionConfig.showExplanations && Boolean(quiz.allowExplanations) : false,
+      showExplanations: sessionConfig.sessionMode === "practice" ? sessionConfig.showExplanations && Boolean(quiz.allowExplanations) : false,
       completed: false
     });
   }
@@ -276,7 +319,7 @@ export function AppDataProvider({ children }) {
     const resultPayload = {
       studentName: student.name,
       quizTitle: quiz.title,
-      mode: quiz.mode,
+      mode: session.mode,
       score,
       total: quiz.questions.length,
       status: forced ? "Temps ecoule" : "Termine"
@@ -364,6 +407,9 @@ export function AppDataProvider({ children }) {
     setSessionAnswer,
     nextSessionQuestion,
     previousSessionQuestion,
+    prepareStudentSession,
+    addDraftOption,
+    removeDraftOption,
     finishSession,
     login,
     logout

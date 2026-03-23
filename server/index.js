@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = join(__dirname, "db.json");
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 app.use(cors());
@@ -55,23 +55,20 @@ app.get("/api/bootstrap", (_req, res) => {
 
 app.post("/api/login", (req, res) => {
   const db = readDb();
-  const { role, name, studentId } = req.body ?? {};
+  const { role, email, password } = req.body ?? {};
 
   if (role === "teacher") {
-    const teacherName = String(name || "").trim() || "Enseignant";
-    let teacher = db.teachers.find((item) => item.name === teacherName);
+    const teacher = db.teachers.find((item) => item.email === email && item.password === password);
     if (!teacher) {
-      teacher = { id: randomUUID(), name: teacherName };
-      db.teachers.push(teacher);
-      writeDb(db);
+      return res.status(401).json({ message: "Identifiants enseignant invalides." });
     }
     return res.json({ isAuthenticated: true, role: "teacher", name: teacher.name, id: teacher.id });
   }
 
   if (role === "student") {
-    const student = db.students.find((item) => item.id === studentId);
+    const student = db.students.find((item) => item.email === email && item.password === password);
     if (!student) {
-      return res.status(404).json({ message: "Etudiant introuvable." });
+      return res.status(401).json({ message: "Identifiants etudiant invalides." });
     }
     return res.json({ isAuthenticated: true, role: "student", name: student.name, id: student.id });
   }
@@ -112,7 +109,8 @@ app.post("/api/students", (req, res) => {
     id: randomUUID(),
     name: payload.name,
     email: payload.email,
-    group: payload.group || ""
+    group: payload.group || "",
+    password: payload.password || "etud1234"
   };
   db.students.unshift(student);
   writeDb(db);

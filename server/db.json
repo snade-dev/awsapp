@@ -2,7 +2,13 @@
   "teachers": [
     {
       "id": "teacher-1",
-      "name": "Mme Dupont"
+      "name": "Mme Dupont",
+      "email": "dupont@quizcampus.fr",
+      "password": "prof1234"
+    },
+    {
+      "id": "6c3906a7-86ab-414c-8414-8351fdfe856b",
+      "name": "Enseignant"
     }
   ],
   "quizzes": [
@@ -97,17 +103,36 @@
   ],
   "students": [
     {
+      "id": "4c8b920c-4fa6-447a-858b-463bedd4d72b",
+      "name": "nn",
+      "email": "etudiant@gmail.com",
+      "group": ""
+    },
+    {
       "id": "student-1",
       "name": "Sarah Martin",
       "email": "sarah.martin@campus.fr",
-      "group": "L1 Informatique"
+      "group": "L1 Informatique",
+      "password": "etud1234"
     },
     {
       "id": "student-2",
       "name": "Yassine Belaid",
       "email": "yassine.belaid@campus.fr",
-      "group": "L1 Informatique"
+      "group": "L1 Informatique",
+      "password": "etud1234"
     }
   ],
-  "results": []
+  "results": [
+    {
+      "id": "06af720e-02ae-41cd-909b-8883ff867f6c",
+      "studentName": "Sarah Martin",
+      "quizTitle": "Culture generale scientifique",
+      "mode": "practice",
+      "score": 1,
+      "total": 1,
+      "submittedAt": "23/03/2026 21:56:42",
+      "status": "Termine"
+    }
+  ]
 }

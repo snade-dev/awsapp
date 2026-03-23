@@ -13,6 +13,7 @@ export function StudentsPage() {
           <Field label="Nom complet"><input value={studentForm.name} onChange={(event) => setStudentForm((current) => ({ ...current, name: event.target.value }))} required className={inputClassName} /></Field>
           <Field label="Email"><input type="email" value={studentForm.email} onChange={(event) => setStudentForm((current) => ({ ...current, email: event.target.value }))} required className={inputClassName} /></Field>
           <Field label="Groupe"><input value={studentForm.group} onChange={(event) => setStudentForm((current) => ({ ...current, group: event.target.value }))} className={inputClassName} /></Field>
+          <Field label="Mot de passe initial"><input value={studentForm.password} onChange={(event) => setStudentForm((current) => ({ ...current, password: event.target.value }))} className={inputClassName} /></Field>
           <button type="submit" className="inline-flex min-h-12 items-center justify-center rounded-full bg-clay px-6 py-3 font-semibold text-white transition hover:-translate-y-0.5">Ajouter l'etudiant</button>
         </form>
       </section>
@@ -26,6 +27,7 @@ export function StudentsPage() {
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
                 <span>{student.email}</span>
                 <span>{student.group || "Groupe non renseigne"}</span>
+                <span>Mot de passe initial: {student.password || "etud1234"}</span>
               </div>
               <button type="button" onClick={() => deleteStudent(student.id)} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-full bg-slate-900/8 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-900/12">Supprimer</button>
             </article>

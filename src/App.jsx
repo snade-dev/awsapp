@@ -8,6 +8,7 @@ import { SessionPage } from "./pages/SessionPage";
 import { ResultsPage } from "./pages/ResultsPage";
 import { StudentHomePage } from "./pages/StudentHomePage";
 import { LoginPage } from "./pages/LoginPage";
+import { QuizDetailPage } from "./pages/QuizDetailPage";
 
 export default function App() {
   return (
@@ -35,12 +36,13 @@ function AppRoutes() {
             />
           </ProtectedRoute>
         }
-      >
-        <Route index element={<DashboardPage />} />
-        <Route path="quiz" element={<QuizzesPage />} />
-        <Route path="etudiants" element={<StudentsPage />} />
-        <Route path="resultats" element={<ResultsPage />} />
-      </Route>
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="quiz" element={<QuizzesPage />} />
+          <Route path="quiz/:quizId" element={<QuizDetailPage />} />
+          <Route path="etudiants" element={<StudentsPage />} />
+          <Route path="resultats" element={<ResultsPage />} />
+        </Route>
       <Route
         path="/etudiant"
         element={
