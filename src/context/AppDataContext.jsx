@@ -3,6 +3,11 @@ import { createContext, startTransition, useContext, useEffect, useRef, useState
 const AUTH_STORAGE_KEY = "quizcampus-auth-v1";
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
+if (!API_BASE_URL) {
+  throw new Error("VITE_API_URL est manquante.");
+}
+
+
 const initialQuestion = {
   text: "",
   options: [
