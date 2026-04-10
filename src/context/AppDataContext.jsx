@@ -1,8 +1,14 @@
-import { createContext, startTransition, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  startTransition,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const AUTH_STORAGE_KEY = "quizcampus-auth-v1";
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-
 
 const initialQuestion = {
   text: "",
@@ -10,9 +16,9 @@ const initialQuestion = {
     { text: "", explanation: "" },
     { text: "", explanation: "" },
     { text: "", explanation: "" },
-    { text: "", explanation: "" }
+    { text: "", explanation: "" },
   ],
-  correctAnswer: 0
+  correctAnswer: 0,
 };
 
 const AppDataContext = createContext(null);
@@ -22,9 +28,9 @@ async function api(path, options = {}) {
   const response = await fetch(`${baseUrl}/api${path}`, {
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers ?? {})
+      ...(options.headers ?? {}),
     },
-    ...options
+    ...options,
   });
 
   if (!response.ok) {
@@ -41,11 +47,28 @@ async function api(path, options = {}) {
 
 export function AppDataProvider({ children }) {
   const [data, setData] = useState({ quizzes: [], students: [], results: [] });
-  const [quizForm, setQuizForm] = useState({ title: "", subject: "", mode: "practice", duration: 20, description: "", allowExplanations: true });
+  const [quizForm, setQuizForm] = useState({
+    title: "",
+    subject: "",
+    mode: "practice",
+    duration: 20,
+    description: "",
+    allowExplanations: true,
+  });
   const [draftQuestion, setDraftQuestion] = useState(initialQuestion);
   const [draftQuestions, setDraftQuestions] = useState([]);
-  const [studentForm, setStudentForm] = useState({ name: "", email: "", group: "", password: "etud1234" });
-  const [sessionConfig, setSessionConfig] = useState({ studentId: "", quizId: "", sessionMode: "practice", showExplanations: true });
+  const [studentForm, setStudentForm] = useState({
+    name: "",
+    email: "",
+    group: "",
+    password: "etud1234",
+  });
+  const [sessionConfig, setSessionConfig] = useState({
+    studentId: "",
+    quizId: "",
+    sessionMode: "practice",
+    showExplanations: true,
+  });
   const [activeSession, setActiveSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [auth, setAuth] = useState(() => {
@@ -74,7 +97,7 @@ export function AppDataProvider({ children }) {
           setSessionConfig((current) => ({
             ...current,
             studentId: current.studentId || payload.students[0]?.id || "",
-            quizId: current.quizId || payload.quizzes[0]?.id || ""
+            quizId: current.quizId || payload.quizzes[0]?.id || "",
           }));
         }
       } catch (error) {
@@ -99,7 +122,11 @@ export function AppDataProvider({ children }) {
   }, [auth]);
 
   useEffect(() => {
-    if (!activeSession || activeSession.mode !== "exam" || activeSession.completed) {
+    if (
+      !activeSession ||
+      activeSession.mode !== "exam" ||
+      activeSession.completed
+    ) {
       clearInterval(timerRef.current);
       timerRef.current = null;
       return undefined;
@@ -140,7 +167,7 @@ export function AppDataProvider({ children }) {
   function addDraftOption() {
     setDraftQuestion((current) => ({
       ...current,
-      options: [...current.options, { text: "", explanation: "" }]
+      options: [...current.options, { text: "", explanation: "" }],
     }));
   }
 
@@ -149,26 +176,34 @@ export function AppDataProvider({ children }) {
       if (current.options.length <= 2) {
         return current;
       }
-      const nextOptions = current.options.filter((_, optionIndex) => optionIndex !== index);
-      const nextCorrectAnswer = current.correctAnswer >= nextOptions.length
-        ? nextOptions.length - 1
-        : current.correctAnswer === index
-          ? 0
-          : current.correctAnswer > index
-            ? current.correctAnswer - 1
-            : current.correctAnswer;
+      const nextOptions = current.options.filter(
+        (_, optionIndex) => optionIndex !== index,
+      );
+      const nextCorrectAnswer =
+        current.correctAnswer >= nextOptions.length
+          ? nextOptions.length - 1
+          : current.correctAnswer === index
+            ? 0
+            : current.correctAnswer > index
+              ? current.correctAnswer - 1
+              : current.correctAnswer;
 
       return {
         ...current,
         options: nextOptions,
-        correctAnswer: nextCorrectAnswer
+        correctAnswer: nextCorrectAnswer,
       };
     });
   }
 
   function addDraftQuestion() {
-    if (!draftQuestion.text.trim() || draftQuestion.options.some((option) => !option.text.trim())) {
-      window.alert("Veuillez remplir l'enonce et les 4 options avant d'ajouter la question.");
+    if (
+      !draftQuestion.text.trim() ||
+      draftQuestion.options.some((option) => !option.text.trim())
+    ) {
+      window.alert(
+        "Veuillez remplir l'enonce et les 4 options avant d'ajouter la question.",
+      );
       return;
     }
 
@@ -179,23 +214,27 @@ export function AppDataProvider({ children }) {
           text: draftQuestion.text.trim(),
           options: draftQuestion.options.map((option) => ({
             text: option.text.trim(),
-            explanation: option.explanation.trim()
+            explanation: option.explanation.trim(),
           })),
-          correctAnswer: draftQuestion.correctAnswer
-        }
+          correctAnswer: draftQuestion.correctAnswer,
+        },
       ]);
       setDraftQuestion(initialQuestion);
     });
   }
 
   function removeDraftQuestion(index) {
-    setDraftQuestions((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setDraftQuestions((current) =>
+      current.filter((_, itemIndex) => itemIndex !== index),
+    );
   }
 
   async function submitQuiz(event) {
     event.preventDefault();
     if (!draftQuestions.length) {
-      window.alert("Ajoutez au moins une question avant d'enregistrer le quiz.");
+      window.alert(
+        "Ajoutez au moins une question avant d'enregistrer le quiz.",
+      );
       return;
     }
 
@@ -206,7 +245,7 @@ export function AppDataProvider({ children }) {
       duration: Number(quizForm.duration),
       description: quizForm.description.trim(),
       allowExplanations: quizForm.allowExplanations,
-      questions: draftQuestions
+      questions: draftQuestions,
     };
 
     if (!payload.title || !payload.subject || !payload.duration) {
@@ -216,13 +255,28 @@ export function AppDataProvider({ children }) {
 
     const createdQuiz = await api("/quizzes", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     startTransition(() => {
-      setData((current) => ({ ...current, quizzes: [createdQuiz, ...current.quizzes] }));
-      setSessionConfig((current) => ({ ...current, quizId: createdQuiz.id, sessionMode: "practice", showExplanations: true }));
-      setQuizForm({ title: "", subject: "", mode: "practice", duration: 20, description: "", allowExplanations: true });
+      setData((current) => ({
+        ...current,
+        quizzes: [createdQuiz, ...current.quizzes],
+      }));
+      setSessionConfig((current) => ({
+        ...current,
+        quizId: createdQuiz.id,
+        sessionMode: "practice",
+        showExplanations: true,
+      }));
+      setQuizForm({
+        title: "",
+        subject: "",
+        mode: "practice",
+        duration: 20,
+        description: "",
+        allowExplanations: true,
+      });
       setDraftQuestions([]);
       setDraftQuestion(initialQuestion);
     });
@@ -234,7 +288,7 @@ export function AppDataProvider({ children }) {
       name: studentForm.name.trim(),
       email: studentForm.email.trim(),
       group: studentForm.group.trim(),
-      password: studentForm.password.trim()
+      password: studentForm.password.trim(),
     };
 
     if (!payload.name || !payload.email) {
@@ -244,29 +298,48 @@ export function AppDataProvider({ children }) {
 
     const createdStudent = await api("/students", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     startTransition(() => {
-      setData((current) => ({ ...current, students: [createdStudent, ...current.students] }));
-      setSessionConfig((current) => ({ ...current, studentId: createdStudent.id }));
+      setData((current) => ({
+        ...current,
+        students: [createdStudent, ...current.students],
+      }));
+      setSessionConfig((current) => ({
+        ...current,
+        studentId: createdStudent.id,
+      }));
       setStudentForm({ name: "", email: "", group: "", password: "etud1234" });
     });
   }
 
   async function deleteStudent(studentId) {
     await api(`/students/${studentId}`, { method: "DELETE" });
-    setData((current) => ({ ...current, students: current.students.filter((student) => student.id !== studentId) }));
+    setData((current) => ({
+      ...current,
+      students: current.students.filter((student) => student.id !== studentId),
+    }));
     if (sessionConfig.studentId === studentId) {
-      setSessionConfig((current) => ({ ...current, studentId: data.students.find((student) => student.id !== studentId)?.id || "" }));
+      setSessionConfig((current) => ({
+        ...current,
+        studentId:
+          data.students.find((student) => student.id !== studentId)?.id || "",
+      }));
     }
   }
 
   async function deleteQuiz(quizId) {
     await api(`/quizzes/${quizId}`, { method: "DELETE" });
-    setData((current) => ({ ...current, quizzes: current.quizzes.filter((quiz) => quiz.id !== quizId) }));
+    setData((current) => ({
+      ...current,
+      quizzes: current.quizzes.filter((quiz) => quiz.id !== quizId),
+    }));
     if (sessionConfig.quizId === quizId) {
-      setSessionConfig((current) => ({ ...current, quizId: data.quizzes.find((quiz) => quiz.id !== quizId)?.id || "" }));
+      setSessionConfig((current) => ({
+        ...current,
+        quizId: data.quizzes.find((quiz) => quiz.id !== quizId)?.id || "",
+      }));
     }
   }
 
@@ -276,28 +349,46 @@ export function AppDataProvider({ children }) {
       ...current,
       quizId,
       sessionMode: mode,
-      showExplanations: mode === "practice" && Boolean(quiz?.allowExplanations)
+      showExplanations: mode === "practice" && Boolean(quiz?.allowExplanations),
     }));
   }
 
-  function startSession() {
-    const student = data.students.find((item) => item.id === sessionConfig.studentId);
-    const quiz = data.quizzes.find((item) => item.id === sessionConfig.quizId);
+  function startSession(overrides = {}) {
+    const effectiveConfig = { ...sessionConfig, ...overrides };
+    const student = data.students.find(
+      (item) => item.id === effectiveConfig.studentId,
+    );
+    const quiz = data.quizzes.find(
+      (item) => item.id === effectiveConfig.quizId,
+    );
     if (!student || !quiz) {
       window.alert("Veuillez selectionner un etudiant et un quiz.");
       return;
     }
 
+    setSessionConfig((current) => ({ ...current, ...effectiveConfig }));
+
     setActiveSession({
       studentId: student.id,
       quizId: quiz.id,
-      mode: sessionConfig.sessionMode,
+      mode: effectiveConfig.sessionMode,
       answers: Array(quiz.questions.length).fill(null),
-      remainingSeconds: sessionConfig.sessionMode === "exam" ? quiz.duration * 60 : 0,
+      remainingSeconds:
+        effectiveConfig.sessionMode === "exam" ? quiz.duration * 60 : 0,
       currentQuestionIndex: 0,
-      showExplanations: sessionConfig.sessionMode === "practice" ? sessionConfig.showExplanations && Boolean(quiz.allowExplanations) : false,
-      completed: false
+      showExplanations:
+        effectiveConfig.sessionMode === "practice"
+          ? effectiveConfig.showExplanations && Boolean(quiz.allowExplanations)
+          : false,
+      completed: false,
     });
+  }
+
+  function startSessionForQuiz(quizId, mode = "practice") {
+    const quiz = data.quizzes.find((item) => item.id === quizId);
+    const showExplanations =
+      mode === "practice" && Boolean(quiz?.allowExplanations);
+    startSession({ quizId, sessionMode: mode, showExplanations });
   }
 
   function setSessionAnswer(questionIndex, answerIndex) {
@@ -315,26 +406,33 @@ export function AppDataProvider({ children }) {
     const student = data.students.find((item) => item.id === session.studentId);
     if (!quiz || !student) return;
 
-    const score = quiz.questions.reduce((total, question, index) => total + (question.correctAnswer === session.answers[index] ? 1 : 0), 0);
+    const score = quiz.questions.reduce(
+      (total, question, index) =>
+        total + (question.correctAnswer === session.answers[index] ? 1 : 0),
+      0,
+    );
     const resultPayload = {
       studentName: student.name,
       quizTitle: quiz.title,
       mode: session.mode,
       score,
       total: quiz.questions.length,
-      status: forced ? "Temps ecoule" : "Termine"
+      status: forced ? "Temps ecoule" : "Termine",
     };
 
     const result = await api("/results", {
       method: "POST",
-      body: JSON.stringify(resultPayload)
+      body: JSON.stringify(resultPayload),
     });
 
     clearInterval(timerRef.current);
     timerRef.current = null;
 
     startTransition(() => {
-      setData((current) => ({ ...current, results: [result, ...current.results] }));
+      setData((current) => ({
+        ...current,
+        results: [result, ...current.results],
+      }));
       setActiveSession({
         ...session,
         completed: true,
@@ -342,7 +440,7 @@ export function AppDataProvider({ children }) {
         total: quiz.questions.length,
         studentName: student.name,
         quizTitle: quiz.title,
-        forced
+        forced,
       });
     });
   }
@@ -354,7 +452,10 @@ export function AppDataProvider({ children }) {
       if (!quiz) return current;
       return {
         ...current,
-        currentQuestionIndex: Math.min(current.currentQuestionIndex + 1, quiz.questions.length - 1)
+        currentQuestionIndex: Math.min(
+          current.currentQuestionIndex + 1,
+          quiz.questions.length - 1,
+        ),
       };
     });
   }
@@ -364,7 +465,7 @@ export function AppDataProvider({ children }) {
       if (!current) return current;
       return {
         ...current,
-        currentQuestionIndex: Math.max(current.currentQuestionIndex - 1, 0)
+        currentQuestionIndex: Math.max(current.currentQuestionIndex - 1, 0),
       };
     });
   }
@@ -372,7 +473,7 @@ export function AppDataProvider({ children }) {
   async function login(credentials) {
     const nextAuth = await api("/login", {
       method: "POST",
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(credentials),
     });
     setAuth(nextAuth);
     return nextAuth;
@@ -408,14 +509,17 @@ export function AppDataProvider({ children }) {
     nextSessionQuestion,
     previousSessionQuestion,
     prepareStudentSession,
+    startSessionForQuiz,
     addDraftOption,
     removeDraftOption,
     finishSession,
     login,
-    logout
+    logout,
   };
 
-  return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
+  return (
+    <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>
+  );
 }
 
 export function useAppData() {

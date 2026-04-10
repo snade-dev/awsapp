@@ -4,11 +4,12 @@ import { AppLayout } from "./components/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { QuizzesPage } from "./pages/QuizzesPage";
 import { StudentsPage } from "./pages/StudentsPage";
-import { SessionPage } from "./pages/SessionPage";
 import { ResultsPage } from "./pages/ResultsPage";
 import { StudentHomePage } from "./pages/StudentHomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { QuizDetailPage } from "./pages/QuizDetailPage";
+import { StudentQuizPage } from "./pages/StudentQuizPage";
+import { CreateQuizPage } from "./pages/CreateQuizPage";
 
 export default function App() {
   return (
@@ -24,7 +25,21 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/connexion" element={<LoginPage />} />
-      <Route path="/" element={<Navigate to={auth.isAuthenticated ? (auth.role === "teacher" ? "/enseignant" : "/etudiant") : "/connexion"} replace />} />
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to={
+              auth.isAuthenticated
+                ? auth.role === "teacher"
+                  ? "/enseignant"
+                  : "/etudiant"
+                : "/connexion"
+            }
+            replace
+          />
+        }
+      />
       <Route
         path="/enseignant"
         element={
@@ -36,13 +51,14 @@ function AppRoutes() {
             />
           </ProtectedRoute>
         }
-        >
-          <Route index element={<DashboardPage />} />
-          <Route path="quiz" element={<QuizzesPage />} />
-          <Route path="quiz/:quizId" element={<QuizDetailPage />} />
-          <Route path="etudiants" element={<StudentsPage />} />
-          <Route path="resultats" element={<ResultsPage />} />
-        </Route>
+      >
+        <Route index element={<DashboardPage />} />
+        <Route path="quiz" element={<QuizzesPage />} />
+        <Route path="quiz/creation" element={<CreateQuizPage />} />
+        <Route path="quiz/:quizId" element={<QuizDetailPage />} />
+        <Route path="etudiants" element={<StudentsPage />} />
+        <Route path="resultats" element={<ResultsPage />} />
+      </Route>
       <Route
         path="/etudiant"
         element={
@@ -56,9 +72,21 @@ function AppRoutes() {
         }
       >
         <Route index element={<StudentHomePage />} />
-        <Route path="session" element={<SessionPage />} />
       </Route>
-      <Route path="*" element={<Navigate to={auth.isAuthenticated ? "/" : "/connexion"} replace />} />
+      <Route
+        path="/etudiant/quiz/:quizId"
+        element={
+          <ProtectedRoute allowRole="student">
+            <StudentQuizPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="*"
+        element={
+          <Navigate to={auth.isAuthenticated ? "/" : "/connexion"} replace />
+        }
+      />
     </Routes>
   );
 }
@@ -69,7 +97,12 @@ function ProtectedRoute({ allowRole, children }) {
     return <Navigate to="/connexion" replace />;
   }
   if (allowRole && auth.role !== allowRole) {
-    return <Navigate to={auth.role === "teacher" ? "/enseignant" : "/etudiant"} replace />;
+    return (
+      <Navigate
+        to={auth.role === "teacher" ? "/enseignant" : "/etudiant"}
+        replace
+      />
+    );
   }
   return children;
 }

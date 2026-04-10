@@ -125,6 +125,16 @@
   ],
   "results": [
     {
+      "id": "f6a54795-c65b-4b16-8ac3-bc405fc7b810",
+      "studentName": "Sarah Martin",
+      "quizTitle": "Introduction aux reseaux",
+      "mode": "practice",
+      "score": 1,
+      "total": 2,
+      "submittedAt": "10/04/2026 10:49:57",
+      "status": "Termine"
+    },
+    {
       "id": "06af720e-02ae-41cd-909b-8883ff867f6c",
       "studentName": "Sarah Martin",
       "quizTitle": "Culture generale scientifique",
